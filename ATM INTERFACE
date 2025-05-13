@@ -1,0 +1,149 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+class BankAccount {
+    private double balance;
+
+    public BankAccount(double initialBalance) {
+        if (initialBalance >= 0)
+            this.balance = initialBalance;
+        else
+            this.balance = 0;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public boolean deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+public class ATM {
+    private BankAccount account;
+
+    private JFrame frame;
+    private JPanel panel;
+    private JTextField amountField;
+    private JTextArea outputArea;
+
+    public ATM(BankAccount account) {
+        this.account = account;
+        initializeGUI();
+    }
+
+    private void initializeGUI() {
+        frame = new JFrame("ATM Machine");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+        frame.setLocationRelativeTo(null); // Center the window
+        frame.getContentPane().setBackground(new Color(135, 206, 250)); // Set background color to light blue
+
+        panel = new JPanel();
+        panel.setBackground(new Color(135, 206, 250)); // Set background color for panel
+        frame.getContentPane().add(panel);
+        panel.setLayout(new GridLayout(5, 1));
+
+        JLabel titleLabel = new JLabel("ATM Machine", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        panel.add(titleLabel);
+
+        JButton withdrawButton = new JButton("Withdraw");
+        withdrawButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleWithdraw();
+            }
+        });
+        panel.add(withdrawButton);
+
+        JButton depositButton = new JButton("Deposit");
+        depositButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDeposit();
+            }
+        });
+        panel.add(depositButton);
+
+        JButton checkBalanceButton = new JButton("Check Balance");
+        checkBalanceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleCheckBalance();
+            }
+        });
+        panel.add(checkBalanceButton);
+
+        outputArea = new JTextArea();
+        outputArea.setEditable(false);
+        outputArea.setBackground(new Color(240, 240, 240));
+        outputArea.setLineWrap(true);
+        outputArea.setWrapStyleWord(true);
+        panel.add(outputArea);
+
+        frame.setVisible(true);
+    }
+
+    private void handleWithdraw() {
+        String input = JOptionPane.showInputDialog(frame, "Enter amount to withdraw:");
+        try {
+            double amount = Double.parseDouble(input);
+            if (amount > 0) {
+                if (account.withdraw(amount)) {
+                    outputArea.setText("Withdrawal successful. New balance: $" + account.getBalance());
+                } else {
+                    outputArea.setText("Insufficient funds or invalid amount.");
+                }
+            } else {
+                outputArea.setText("Amount must be positive.");
+            }
+        } catch (NumberFormatException e) {
+            outputArea.setText("Invalid input. Please enter a valid amount.");
+        }
+    }
+
+    private void handleDeposit() {
+        String input = JOptionPane.showInputDialog(frame, "Enter amount to deposit:");
+        try {
+            double amount = Double.parseDouble(input);
+            if (amount > 0) {
+                if (account.deposit(amount)) {
+                    outputArea.setText("Deposit successful. New balance: $" + account.getBalance());
+                } else {
+                    outputArea.setText("Invalid deposit amount.");
+                }
+            } else {
+                outputArea.setText("Amount must be positive.");
+            }
+        } catch (NumberFormatException e) {
+            outputArea.setText("Invalid input. Please enter a valid amount.");
+        }
+    }
+
+    private void handleCheckBalance() {
+        outputArea.setText("Current balance: $" + account.getBalance());
+    }
+
+    public static void main(String[] args) {
+        BankAccount userAccount = new BankAccount(1000.0); // Initial balance set to $1000
+        new ATM(userAccount);
+    }
+}
